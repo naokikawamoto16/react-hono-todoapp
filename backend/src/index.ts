@@ -14,7 +14,7 @@ const tasks: Task[] = [
 
 const app = new Hono()
 
-// Get task by id
+// Get a task by id
 app.get('/tasks/:id', (c) => {
   const id = Number(c.req.param('id'))
   const task = tasks.find(t => t.id === id)
@@ -40,6 +40,19 @@ app.post('/tasks', async (c) => {
   }
   tasks.push(task)
   return c.json({ message: 'success' }, 201)
+})
+
+// Update a task by id
+app.put('/tasks/:id', async (c) => {
+  const id = Number(c.req.param('id'))
+  const task = tasks.find(t => t.id === id)
+  if (!task) {
+    return c.json({ message: 'Task not found' }, 404)
+  }
+  const body = await c.req.json()
+  task.name = body.name
+  task.completed = body.completed
+  return c.json({ message: 'success' })
 })
 
 const port = 3000

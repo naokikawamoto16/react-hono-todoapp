@@ -1,5 +1,6 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 
 interface Task {
   id: number
@@ -13,6 +14,9 @@ const tasks: Task[] = [
 ]
 
 const app = new Hono()
+
+// Enable CORS for all routes
+app.use('/*', cors())
 
 // Get a task by id
 app.get('/tasks/:id', (c) => {

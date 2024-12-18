@@ -6,8 +6,13 @@ export const Route = createFileRoute('/tasks')({
   component: TasksComponent,
 })
 
+interface Task {
+  id: number
+  name: string
+}
+
 function TasksComponent() {
-  const [tasks, setTasks] = useState<{ id: number; name: string }[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +31,7 @@ function TasksComponent() {
   return (
     <div className="p-2">
       <h3>Test</h3>
-      <ul>
+      <ul className='text-2xl'>
         {tasks && tasks.map((task: { id: number; name: string }) => (
           <li key={task.id}>{task.name}</li>
         ))}

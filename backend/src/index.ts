@@ -55,6 +55,8 @@ app.patch('/tasks/:id', async (c) => {
   return c.json({ message: 'success' }, 200)
 })
 
+// TODO: Delete a task by id
+
 const port = 3000
 console.log(`Server is running on http://localhost:${port}`)
 

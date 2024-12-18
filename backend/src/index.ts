@@ -43,7 +43,7 @@ app.post('/tasks', async (c) => {
 })
 
 // Update a task by id
-app.put('/tasks/:id', async (c) => {
+app.patch('/tasks/:id', async (c) => {
   const id = Number(c.req.param('id'))
   const task = tasks.find(t => t.id === id)
   if (!task) {
@@ -52,7 +52,7 @@ app.put('/tasks/:id', async (c) => {
   const body = await c.req.json()
   task.name = body.name
   task.completed = body.completed
-  return c.json({ message: 'success' })
+  return c.json({ message: 'success' }, 200)
 })
 
 const port = 3000

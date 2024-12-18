@@ -3,8 +3,9 @@ import { Hono } from 'hono'
 
 const app = new Hono()
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
+// Get all tasks
+app.get('/tasks', (c) => {
+  return c.json(tasks)
 })
 
 const port = 3000
@@ -14,3 +15,14 @@ serve({
   fetch: app.fetch,
   port
 })
+
+interface Task {
+  id: number
+  name: string
+  completed: boolean
+}
+
+const tasks: Task[] = [
+  { id: 1, name: 'Task 1', completed: false },
+  { id: 2, name: 'Task 2', completed: true }
+]

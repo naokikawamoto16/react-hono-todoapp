@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { Checkbox } from "@/components/ui/checkbox"
 
 export const Route = createFileRoute('/tasks')({
   component: TasksComponent,
@@ -33,7 +34,10 @@ function TasksComponent() {
       <h3>Test</h3>
       <ul className='text-2xl'>
         {tasks && tasks.map((task: { id: number; name: string }) => (
-          <li key={task.id}>{task.name}</li>
+          <li key={task.id}>
+            <Checkbox />
+            {task.name}
+          </li>
         ))}
       </ul>
     </div>

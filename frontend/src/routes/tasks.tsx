@@ -20,8 +20,8 @@ interface Task {
 
 function TasksComponent() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [addInputName, setAddInputName] = useState('');
-  const [updateInputName, setUpdateInputName] = useState('');
+  const [addInputValue, setAddInputValue] = useState('');
+  const [editingTask, setEditingTask] = useState<{ id: number; name: string } | undefined>(undefined);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,26 +37,31 @@ function TasksComponent() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    console.log(tasks);
+  }, [tasks]);
+
   const addTask = async () => {
-    if (!addInputName.trim()) return;
+    const name = addInputValue.trim();
+    if (!name) return;
     try {
       const res = await fetch('http://localhost:3000/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: addInputName.trim() }),
+        body: JSON.stringify({ name: addInputValue.trim() }),
       });
-      const result = await res.json();
-      setTasks((prevTasks) => [...prevTasks, result]);
+      const addedTask = await res.json();
+      console.log(addedTask);
+      setTasks((prevTasks) => [...prevTasks, addedTask]);
     } catch (error) {
       console.error(error);
     }
-    setAddInputName("");
+    setAddInputValue("");
   };
 
-  const updateTask = async (taskId: number, completed?: CheckedState) => {
-    let name: string | undefined = updateInputName.trim() || undefined;
+  const updateTask = async (taskId: number, completed?: CheckedState, name?: string) => {
     const currentCompleted = typeof completed === 'boolean' ? completed : undefined;
 
     try {
@@ -77,29 +82,33 @@ function TasksComponent() {
         body: JSON.stringify(body),
       });
 
-      setTasks((prevTasks) => prevTasks.map((task: Task) =>
-        task.id === taskId ? { ...task, name: name ?? task.name, completed: currentCompleted ?? task.completed } : task
-      ));
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === taskId
+            ? { ...task, name: name ?? task.name, completed: currentCompleted ?? task.completed }
+            : task
+        )
+      );
     } catch (error) {
       console.error(error);
     }
-    setUpdateInputName("");
+    setEditingTask(undefined);
   };
 
   return (
     <div className="p-4 max-w-md mx-auto">
       <div className="flex gap-2 mb-4">
         <Input
-          value={addInputName}
-          onChange={(e) => setAddInputName(e.target.value)}
+          value={addInputValue}
+          onChange={(e) => setAddInputValue(e.target.value)}
           placeholder="Add a new todo"
         />
         <Button onClick={addTask}>Add</Button>
       </div>
       <div className="space-y-2">
-        {tasks.map((task) => (
+        {tasks.map((task, index) => (
           <Card
-            key={task.id}
+            key={index}
             className={`p-4 flex justify-between items-center ${
               task.completed ? "opacity-50 line-through" : ""
             }`}
@@ -109,18 +118,38 @@ function TasksComponent() {
                 checked={task.completed}
                 onCheckedChange={(checked: CheckedState) => updateTask(task.id, checked)}
               />
-              <Dialog>
+              <Dialog
+                onOpenChange={(isOpen) => {
+                  if (isOpen) {
+                    setEditingTask({ id: task.id, name: task.name });
+                  } else {
+                    setEditingTask(undefined);
+                  }
+                }}
+              >
                 <DialogTrigger asChild>
                   <span className="cursor-pointer">{task.name}</span>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogTitle>Edit Task Name</DialogTitle>
-                  <Input
-                    value={updateInputName}
-                    onChange={(e) => setUpdateInputName(e.target.value)}
-                  />
+                    <Input
+                      value={editingTask?.name}
+                      onChange={(e) =>
+                        setEditingTask((prev) =>
+                          prev ? { ...prev, name: e.target.value } : undefined
+                        )
+                      }
+                    />
                   <div className="mt-4 flex justify-end gap-2">
-                    <Button onClick={() => updateTask(task.id)}>Save</Button>
+                    <Button
+                      onClick={() => {
+                        if (editingTask) {
+                          updateTask(editingTask.id, undefined, editingTask.name);
+                        }
+                      }}
+                    >
+                      Save
+                    </Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -132,5 +161,6 @@ function TasksComponent() {
         ))}
       </div>
     </div>
-  )
+  );
 }
+

@@ -37,13 +37,13 @@ app.get('/tasks', (c) => {
 app.post('/tasks', async (c) => {
   const body = await c.req.json()
   const id = tasks.length + 1
-  const task = {
+  const task: Task = {
     id,
     name: body.name,
     completed: false
   }
   tasks.push(task)
-  return c.json({ message: 'success' }, 201)
+  return c.json({ ...task }, 201)
 })
 
 // Update a task by id
@@ -53,9 +53,14 @@ app.patch('/tasks/:id', async (c) => {
   if (!task) {
     return c.json({ message: 'Task not found' }, 404)
   }
-  const body = await c.req.json()
-  if (body.name) task.name = body.name
-  if  (body.completed !== undefined) task.completed = body.completed
+  let body: { name?: string; completed?: boolean }
+  try {
+    body = await c.req.json()
+  } catch (error) {
+    return c.json({ message: 'Invalid JSON' }, 400)
+  }
+  if (body.name !== undefined) task.name = body.name
+  if (body.completed !== undefined) task.completed = body.completed
   return c.json({ message: 'success' }, 200)
 })
 

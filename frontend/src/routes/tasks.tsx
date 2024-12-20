@@ -69,7 +69,7 @@ function TasksComponent() {
         body.completed = currentCompleted;
       }
 
-      const res = await fetch('http://localhost:3000/tasks', {
+      await fetch(`http://localhost:3000/tasks/${taskId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

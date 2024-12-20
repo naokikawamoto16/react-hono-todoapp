@@ -54,8 +54,8 @@ app.patch('/tasks/:id', async (c) => {
     return c.json({ message: 'Task not found' }, 404)
   }
   const body = await c.req.json()
-  task.name = body.name
-  task.completed = body.completed
+  if (body.name) task.name = body.name
+  if  (body.completed !== undefined) task.completed = body.completed
   return c.json({ message: 'success' }, 200)
 })
 

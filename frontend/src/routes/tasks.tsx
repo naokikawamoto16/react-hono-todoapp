@@ -37,10 +37,6 @@ function TasksComponent() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log(tasks);
-  }, [tasks]);
-
   const addTask = async () => {
     const name = addInputValue.trim();
     if (!name) return;
@@ -53,7 +49,6 @@ function TasksComponent() {
         body: JSON.stringify({ name: addInputValue.trim() }),
       });
       const addedTask = await res.json();
-      console.log(addedTask);
       setTasks((prevTasks) => [...prevTasks, addedTask]);
     } catch (error) {
       console.error(error);
@@ -95,13 +90,23 @@ function TasksComponent() {
     setEditingTask(undefined);
   };
 
+  const deleteTask = async (taskId: number) => {
+    try {
+      await fetch(`http://localhost:3000/tasks/${taskId}`, { method: 'DELETE' });
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-3xl font-bold mb-4 text-center">Tasks</h1>
       <div className="flex gap-2 mb-4">
         <Input
           value={addInputValue}
           onChange={(e) => setAddInputValue(e.target.value)}
-          placeholder="Add a new todo"
+          placeholder="Add a new task"
         />
         <Button onClick={addTask}>Add</Button>
       </div>
@@ -109,9 +114,7 @@ function TasksComponent() {
         {tasks.map((task, index) => (
           <Card
             key={index}
-            className={`p-4 flex justify-between items-center ${
-              task.completed ? "opacity-50 line-through" : ""
-            }`}
+            className="p-4 flex justify-between items-center"
           >
             <div className="flex items-center gap-2">
               <Checkbox
@@ -128,7 +131,7 @@ function TasksComponent() {
                 }}
               >
                 <DialogTrigger asChild>
-                  <span className="cursor-pointer">{task.name}</span>
+                  <span className={`cursor-pointer ${task.completed ? "opacity-50 line-through" : ""}`}>{task.name}</span>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogTitle>Edit Task Name</DialogTitle>
@@ -154,7 +157,7 @@ function TasksComponent() {
                 </DialogContent>
               </Dialog>
             </div>
-            <Button variant="ghost">
+            <Button variant="destructive" onClick={() => { deleteTask(task.id) }}>
               Remove
             </Button>
           </Card>

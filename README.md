@@ -1,1 +1,8 @@
-# Todo App with React and Hono
+```
+npm install
+npm run dev
+```
+
+```
+open http://localhost:3000
+```
